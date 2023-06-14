@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import useTokenJwt from '../stores/token-jwt';
 import HttpClient from '../services/http-client.service';
 
-const client = new HttpClient();
-
 export default function RouteLogin() {
     const [state, setState] = useState({"username": "", "password": ""});
     const [message, setMessage] = useState("");
 
-    const {setTokenJwt} = useTokenJwt();
+    const {setTokenJwt, reset} = useTokenJwt();
+
+    const client = new HttpClient(reset);
 
     const navigate = useNavigate();
 

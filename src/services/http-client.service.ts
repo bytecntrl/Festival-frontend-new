@@ -2,15 +2,39 @@ import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } f
 
 class HttpClient {
     private http: AxiosInstance;
+    private resetToken: () => void;
 
-    constructor() {
+    constructor(resetToken: () => void) {
         this.http = axios.create({
-            baseURL: process.env.REACT_APP_BASE_URL, // sostituisci con l'URL della tua API
-            timeout: 5000, // tempo massimo di attesa per la risposta (in millisecondi)
+            baseURL: process.env.REACT_APP_BASE_URL,
+            timeout: 5000,
             headers: {
-                'Content-Type': 'application/json', // specifica il tipo di dati che invii
+                'Content-Type': 'application/json',
             },
         });
+
+        this.resetToken = resetToken;
+
+        this.http.interceptors.response.use(
+            (response) => {
+              return response;
+            },
+            (error) => {
+                if (error.response) {
+                    const responseData = error.response.data as { error: boolean; message: string };
+        
+                    if (
+                        error.response.status === 401 && 
+                        responseData.error && 
+                        responseData.message === 'Invalid JWT token'
+                    ) {
+                        this.resetToken();
+                    }
+                }
+        
+                return Promise.reject(error);
+            }
+        );
     }
 
     public async get<T>(url: string, params = {}, config: AxiosRequestConfig = {}): Promise<T> {
@@ -18,8 +42,7 @@ class HttpClient {
             const response: AxiosResponse<T> = await this.http.get(url, { params, ...config });
             return response.data;
         } catch (error) {
-            this.handleRequestError(error as AxiosError);
-            return {} as T;
+            return this.handleRequestError<T>(error as AxiosError);
         }
     }
 
@@ -28,8 +51,7 @@ class HttpClient {
             const response: AxiosResponse<T> = await this.http.post(url, data, config);
             return response.data;
         } catch (error) {
-            this.handleRequestError(error as AxiosError);
-            return {} as T;
+            return this.handleRequestError<T>(error as AxiosError);
         }
     }
 
@@ -38,8 +60,7 @@ class HttpClient {
             const response: AxiosResponse<T> = await this.http.put(url, data, config);
             return response.data;
         } catch (error) {
-            this.handleRequestError(error as AxiosError);
-            return {} as T;
+            return this.handleRequestError<T>(error as AxiosError);
         }
     }
 
@@ -48,8 +69,7 @@ class HttpClient {
             const response: AxiosResponse<T> = await this.http.delete(url, config);
             return response.data;
         } catch (error) {
-            this.handleRequestError(error as AxiosError);
-            return {} as T;
+            return this.handleRequestError<T>(error as AxiosError);
         }
     }
 
@@ -57,22 +77,22 @@ class HttpClient {
         this.http.defaults.headers.common[name] = value;
     }
 
-    private handleRequestError(error: AxiosError): void {
+    private handleRequestError<T>(error: AxiosError): T {
         if (error.response) {
-            console.error('Errore di risposta:', error.response.status);
-            
             const responseData = error.response.data as { error: boolean; message: string };
-            
-            console.error('Messaggio di errore:', responseData.message);
-
+      
             if (error.response.status === 401 && responseData.error === true) {
                 console.error('JWT error:', responseData.message);
             }
+        
+            return error.response.data as T;
         } else if (error.request) {
             console.error('Nessuna risposta ricevuta:', error.request);
         } else {
             console.error('Errore durante la richiesta:', error.message);
         }
+      
+        return {} as T;
     }
 }
 
