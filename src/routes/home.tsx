@@ -1,5 +1,13 @@
 import React from 'react';
+import { Outlet } from "react-router-dom";
+
+import NavBar from '../components/navbar';
 
 export default function RouteHome() {
-	return <>Home</>;
+	return (
+        <>
+            <NavBar />
+            <Outlet />
+        </>
+    );
 }
