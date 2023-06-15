@@ -11,4 +11,5 @@ export interface SubcategoriesResponse {
     error: boolean
     message: string
     categories: Subcategory[]
+    pages: number
 }
