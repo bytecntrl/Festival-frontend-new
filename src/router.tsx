@@ -4,6 +4,7 @@ import { createBrowserRouter } from "react-router-dom";
 import RouteHome from "./routes/home";
 import RouteLogin from "./routes/login";
 import RouteUsers from "./routes/users";
+import RouteSubcategories from "./routes/subcategories";
 
 const routers = createBrowserRouter(
     [
@@ -18,6 +19,10 @@ const routers = createBrowserRouter(
                 {
                     path: "/users",
                     element: <RouteUsers />
+                },
+                {
+                    path: "/subcategories",
+                    element: <RouteSubcategories />
                 }
             ]
         }

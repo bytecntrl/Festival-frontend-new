@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ErrorMessage from '../components/error-message';
 import { LoginResponse } from '../models/auth.model';
-import useHttpClient from '../hooks/http-client.service';
+import useHttpClient from '../hooks/http-client';
 import useTokenJwt from '../stores/token-jwt';
 
 export default function RouteLogin() {

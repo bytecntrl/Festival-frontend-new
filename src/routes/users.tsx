@@ -6,7 +6,7 @@ import UserAdd from '../components/users/user-add';
 import UsersTable from '../components/users/users-table';
 import BaseResponse from '../models/base.model';
 import { RegisterResponse, User, UsersReponse } from '../models/users.model';
-import useHttpClient from '../hooks/http-client.service';
+import useHttpClient from '../hooks/http-client';
 
 export default function RouteUsers() {
     const [ page, setPage ] = useState(1);
