@@ -29,7 +29,7 @@ export default class TokenJwtService {
 
     isAdmin(): boolean {
         if (this.isLoggedIn()) {
-            return (jwtDecode(this.token) as Token).role == "admin";
+            return (jwtDecode(this.token) as Token).role === "admin";
         }
 
         return false;
