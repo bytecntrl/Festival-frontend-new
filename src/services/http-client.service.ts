@@ -1,12 +1,15 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import BaseResponse from '../models/base.model';
+import useTokenJwt from '../stores/token-jwt';
 
 class HttpClient {
     private http: AxiosInstance;
-    private resetToken: () => void;
+    private navigate = useNavigate();
+    private token = useTokenJwt()
 
-    constructor(resetToken: () => void) {
+    constructor() {
         this.http = axios.create({
             baseURL: process.env.REACT_APP_BASE_URL,
             timeout: 5000,
@@ -14,8 +17,6 @@ class HttpClient {
                 'Content-Type': 'application/json',
             },
         });
-
-        this.resetToken = resetToken;
 
         this.http.interceptors.response.use(
             (response) => {
@@ -30,7 +31,8 @@ class HttpClient {
                         responseData.error && 
                         responseData.message === 'Invalid JWT token'
                     ) {
-                        this.resetToken();
+                        this.token.reset()
+                        this.navigate('/login');
                     }
                 }
         

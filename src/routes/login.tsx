@@ -11,9 +11,9 @@ export default function RouteLogin() {
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
   
-    const { setTokenJwt, reset } = useTokenJwt();
+    const { setTokenJwt } = useTokenJwt();
   
-    const client = new HttpClient(reset);
+    const client = new HttpClient();
     const navigate = useNavigate();
   
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -15,25 +15,25 @@ export default function RouteUsers() {
     const [ pageNum, setPageNum ] = useState(1);
     const [ state, setState ] = useState<User[]>([]);
     const [ message, setMessage ] = useState("");
-    const { tokenJwt, reset } = useTokenJwt();
+    const { tokenJwt } = useTokenJwt();
 
-    const client = new HttpClient(reset);
+    const client = new HttpClient();
 
     client.setHeader("Authorization", `Bearer ${tokenJwt}`);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await client.get<UsersReponse>('/users', { page: page });
-    
-            if (data.error) {
-                setMessage(data.message);
-                return;
-            }
-    
-            setState(data.users);
-            setPageNum(data.pages);
+    const fetchData = async () => {
+        const data = await client.get<UsersReponse>('/users', { page: page });
+
+        if (data.error) {
+            setMessage(data.message);
+            return;
         }
 
+        setState(data.users);
+        setPageNum(data.pages);
+    }
+
+    useEffect(() => {
         fetchData();
     // eslint-disable-next-line
     }, [page]);
@@ -48,8 +48,8 @@ export default function RouteUsers() {
             return;
         }
         
-        setState(prevState => prevState.filter(user => user.id !== id));
         setPage(1);
+        fetchData();
     }
 
     const addUser = async (username: string, password: string, role: string) => {
@@ -66,8 +66,8 @@ export default function RouteUsers() {
             return;
         }
         
-        setState(prevState => [...prevState, data.user]);
         setPage(1);
+        fetchData();
     }
 
     const pages: JSX.Element[] = Array.from(Array(pageNum).keys()).map((x) => (
