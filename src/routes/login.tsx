@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ErrorMessage from '../components/error-message';
 import { LoginResponse } from '../models/auth.model';
-import HttpClient from '../services/http-client.service';
+import useHttpClient from '../services/http-client.service';
 import useTokenJwt from '../stores/token-jwt';
 
 export default function RouteLogin() {
@@ -13,7 +13,7 @@ export default function RouteLogin() {
   
     const { setTokenJwt } = useTokenJwt();
   
-    const client = new HttpClient();
+    const client = useHttpClient();
     const navigate = useNavigate();
   
     const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -5,21 +5,18 @@ import PageButton from '../components/page-button';
 import UserAdd from '../components/users/user-add';
 import UsersTable from '../components/users/users-table';
 import BaseResponse from '../models/base.model';
-import { User, UsersReponse } from '../models/users.model';
-import HttpClient from '../services/http-client.service';
-import useTokenJwt from '../stores/token-jwt';
-import { RegisterResponse } from '../models/users.model';
+import { RegisterResponse, User, UsersReponse } from '../models/users.model';
+import useHttpClient from '../services/http-client.service';
 
 export default function RouteUsers() {
     const [ page, setPage ] = useState(1);
     const [ pageNum, setPageNum ] = useState(1);
     const [ state, setState ] = useState<User[]>([]);
     const [ message, setMessage ] = useState("");
-    const { tokenJwt } = useTokenJwt();
 
-    const client = new HttpClient();
+    const client = useHttpClient();
 
-    client.setHeader("Authorization", `Bearer ${tokenJwt}`);
+    client.setHeader();
 
     const fetchData = async () => {
         const data = await client.get<UsersReponse>('/users', { page: page });
@@ -41,7 +38,7 @@ export default function RouteUsers() {
     const delUser = async (id: number) => {
         setMessage("");
 
-        const data = await client.delete<BaseResponse>(`/users/${id}`);
+        const data = await client.remove<BaseResponse>(`/users/${id}`);
 
         if (data.error) {
             setMessage(data.message);

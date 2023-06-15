@@ -1,97 +1,101 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BaseResponse from '../models/base.model';
 import useTokenJwt from '../stores/token-jwt';
 
-class HttpClient {
-    private http: AxiosInstance;
-    private navigate = useNavigate();
-    private token = useTokenJwt()
+const useHttpClient = () => {
+    const navigate = useNavigate();
+    const token = useTokenJwt();
+    const http = axios.create({
+        baseURL: process.env.REACT_APP_BASE_URL,
+        timeout: 5000,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
-    constructor() {
-        this.http = axios.create({
-            baseURL: process.env.REACT_APP_BASE_URL,
-            timeout: 5000,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        this.http.interceptors.response.use(
+    useEffect(() => {
+        const responseInterceptor = http.interceptors.response.use(
             (response) => {
-              return response;
+                return response;
             },
             (error) => {
                 if (error.response) {
-                    const responseData = error.response.data as BaseResponse;
-        
+                    const responseData = error.response.data;
+
                     if (
-                        error.response.status === 401 && 
-                        responseData.error && 
+                        error.response.status === 401 &&
+                        responseData.error &&
                         responseData.message === 'Invalid JWT token'
                     ) {
-                        this.token.reset()
-                        this.navigate('/login');
+                        token.reset();
+                        navigate('/login');
                     }
                 }
-        
+
                 return Promise.reject(error);
             }
         );
-    }
 
-    public async get<T>(url: string, params = {}, config: AxiosRequestConfig = {}): Promise<T> {
+        return () => {
+            http.interceptors.response.eject(responseInterceptor);
+        };
+    }, [http, token, navigate]);
+
+    const get = async <T>(url: string, params = {}, config: AxiosRequestConfig = {}) => {
         try {
-            const response: AxiosResponse<T> = await this.http.get(url, { params, ...config });
+            const response: AxiosResponse<T> = await http.get(url, { params, ...config });
             return response.data;
         } catch (error) {
-            return this.handleRequestError<T>(error as AxiosError);
+            return handleRequestError<T>(error as AxiosError);
         }
-    }
+    };
 
-    public async post<T>(url: string, data = {}, config: AxiosRequestConfig = {}): Promise<T> {
+    const post = async <T>(url: string, data = {}, config: AxiosRequestConfig = {}) => {
         try {
-            const response: AxiosResponse<T> = await this.http.post(url, data, config);
+            const response: AxiosResponse<T> = await http.post(url, data, config);
             return response.data;
         } catch (error) {
-            return this.handleRequestError<T>(error as AxiosError);
+            return handleRequestError<T>(error as AxiosError);
         }
-    }
+    };
 
-    public async put<T>(url: string, data = {}, config: AxiosRequestConfig = {}): Promise<T> {
+    const put = async <T>(url: string, data = {}, config: AxiosRequestConfig = {}) => {
         try {
-            const response: AxiosResponse<T> = await this.http.put(url, data, config);
+            const response: AxiosResponse<T> = await http.put(url, data, config);
             return response.data;
         } catch (error) {
-            return this.handleRequestError<T>(error as AxiosError);
+            return handleRequestError<T>(error as AxiosError);
         }
-    }
+    };
 
-    public async delete<T>(url: string, config: AxiosRequestConfig = {}): Promise<T> {
+    const remove = async <T>(url: string, config: AxiosRequestConfig = {}) => {
         try {
-            const response: AxiosResponse<T> = await this.http.delete(url, config);
+            const response: AxiosResponse<T> = await http.delete(url, config);
             return response.data;
         } catch (error) {
-            return this.handleRequestError<T>(error as AxiosError);
+            return handleRequestError<T>(error as AxiosError);
         }
-    }
+    };
 
-    public setHeader(name: string, value: string): void {
-        this.http.defaults.headers.common[name] = value;
-    }
+    const setHeader = () => {
+        http.defaults.headers.common["Authorization"] = `Bearer ${token.tokenJwt}`;
+    };
 
-    private handleRequestError<T>(error: AxiosError): T {
-        if (error.response) {        
+    const handleRequestError = <T>(error: AxiosError): T => {
+        if (error.response) {
             return error.response.data as T;
         } else if (error.request) {
             console.error('Nessuna risposta ricevuta:', error.request);
         } else {
             console.error('Errore durante la richiesta:', error.message);
         }
-      
-        return { error: true, message: error.message } as T;
-    }
-}
 
-export default HttpClient;
+        return { error: true, message: error.message } as T;
+    };
+
+    return { get, post, put, remove, setHeader };
+};
+
+export default useHttpClient;
