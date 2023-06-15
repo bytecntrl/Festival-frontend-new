@@ -13,3 +13,10 @@ export interface UsersReponse {
     users: User[]
     pages: number
 }
+
+
+export interface RegisterResponse {
+    error: boolean
+    message: string
+    user: User
+}

@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 
 import ErrorMessage from '../components/error-message';
 import PageButton from '../components/page-button';
+import UserAdd from '../components/users/user-add';
+import UsersTable from '../components/users/users-table';
+import BaseResponse from '../models/base.model';
 import { User, UsersReponse } from '../models/users.model';
 import HttpClient from '../services/http-client.service';
 import useTokenJwt from '../stores/token-jwt';
-import UsersTable from '../components/users/users-table';
-import BaseResponse from '../models/base.model';
+import { RegisterResponse } from '../models/users.model';
 
 export default function RouteUsers() {
     const [ page, setPage ] = useState(1);
@@ -50,6 +52,24 @@ export default function RouteUsers() {
         setPage(1);
     }
 
+    const addUser = async (username: string, password: string, role: string) => {
+        setMessage("");
+
+        const data = await client.post<RegisterResponse>('/auth', {
+            username,
+            password,
+            role
+        });
+
+        if (data.error) {
+            setMessage(data.message);
+            return;
+        }
+        
+        setState(prevState => [...prevState, data.user]);
+        setPage(1);
+    }
+
     const pages: JSX.Element[] = Array.from(Array(pageNum).keys()).map((x) => (
         <PageButton
             key={x.toString()}
@@ -71,6 +91,7 @@ export default function RouteUsers() {
                     {pages}
                 </div>
             </div>
+            <UserAdd addUser={addUser}/>
         </div>
     );
 }
