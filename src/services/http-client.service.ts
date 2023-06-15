@@ -1,5 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
+import BaseResponse from '../models/base.model';
+
 class HttpClient {
     private http: AxiosInstance;
     private resetToken: () => void;
@@ -21,7 +23,7 @@ class HttpClient {
             },
             (error) => {
                 if (error.response) {
-                    const responseData = error.response.data as { error: boolean; message: string };
+                    const responseData = error.response.data as BaseResponse;
         
                     if (
                         error.response.status === 401 && 
@@ -78,13 +80,7 @@ class HttpClient {
     }
 
     private handleRequestError<T>(error: AxiosError): T {
-        if (error.response) {
-            const responseData = error.response.data as { error: boolean; message: string };
-      
-            if (error.response.status === 401 && responseData.error === true) {
-                console.error('JWT error:', responseData.message);
-            }
-        
+        if (error.response) {        
             return error.response.data as T;
         } else if (error.request) {
             console.error('Nessuna risposta ricevuta:', error.request);
@@ -92,7 +88,7 @@ class HttpClient {
             console.error('Errore durante la richiesta:', error.message);
         }
       
-        return {} as T;
+        return { error: true, message: error.message } as T;
     }
 }
 
