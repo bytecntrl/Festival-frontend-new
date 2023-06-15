@@ -43,11 +43,11 @@ export default class TokenJwtService {
         return false;
     }
 
-    getUsername(): string {
+    getToken(): Token {
         if (this.isLoggedIn()) {
-            return (jwtDecode(this.token) as Token).username;
+            return (jwtDecode(this.token) as Token);
         }
         
-        return "";
+        return {} as Token;
     }
 }

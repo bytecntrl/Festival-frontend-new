@@ -3,8 +3,9 @@ import { createBrowserRouter } from "react-router-dom";
 
 import RouteHome from "./routes/home";
 import RouteLogin from "./routes/login";
-import RouteUsers from "./routes/users";
+import RouteProfile from "./routes/profile";
 import RouteSubcategories from "./routes/subcategories";
+import RouteUsers from "./routes/users";
 
 const routers = createBrowserRouter(
     [
@@ -23,6 +24,10 @@ const routers = createBrowserRouter(
                 {
                     path: "/subcategories",
                     element: <RouteSubcategories />
+                },
+                {
+                    path: "/profile",
+                    element: <RouteProfile />
                 }
             ]
         }
