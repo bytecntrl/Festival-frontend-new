@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import ErrorMessage from '../components/error-message';
 import PageButton from '../components/page-button';
@@ -18,7 +18,7 @@ export default function RouteUsers() {
 
     client.setHeader();
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         const data = await client.get<UsersReponse>('/users', { page: page });
 
         if (data.error) {
@@ -28,12 +28,11 @@ export default function RouteUsers() {
 
         setState(data.users);
         setPageNum(data.pages);
-    }
+    }, [page]);
 
     useEffect(() => {
         fetchData();
-    // eslint-disable-next-line
-    }, [page]);
+    }, [fetchData]);
 
     const delUser = async (id: number) => {
         setMessage("");
