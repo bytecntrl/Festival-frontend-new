@@ -1,31 +1,26 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useEffect } from 'react';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 
 import useTokenJwt, { TokenJwt } from '../stores/token-jwt';
 
-const mountErrorInterceptor = (http: AxiosInstance, token: TokenJwt, navigate: NavigateFunction) => {
-    return http.interceptors.response.use(
-        (response) => {
-            return response;
-        },
-        (error) => {
-            if (error.response) {
-                const responseData = error.response.data;
+const errorInterceptor = (token: TokenJwt, navigate: NavigateFunction) => {
+    return (error: any) => {
+        if (error.response) {
+            const responseData = error.response.data;
 
-                if (
-                    error.response.status === 401 &&
-                    responseData.error &&
-                    responseData.message === 'Invalid JWT token'
-                ) {
-                    token.reset();
-                    navigate('/login');
-                }
+            if (
+                error.response.status === 401 &&
+                responseData.error &&
+                responseData.message === 'Invalid JWT token'
+            ) {
+                token.reset();
+                navigate('/login');
             }
-
-            return Promise.reject(error);
         }
-    );
+
+        return Promise.reject(error);
+    };
 }
 
 const useHttpClient = () => {
@@ -40,7 +35,7 @@ const useHttpClient = () => {
     });
 
     useEffect(() => {
-        const interceptors = mountErrorInterceptor(http, token, navigate);
+        const interceptors = http.interceptors.response.use((response) => response, errorInterceptor(token, navigate));
 
         return () => {
             http.interceptors.response.eject(interceptors);
