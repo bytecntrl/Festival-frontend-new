@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface TokenJwt {
+export interface TokenJwt {
     tokenJwt: string
     setTokenJwt: (token: string) => void
     reset: () => void
