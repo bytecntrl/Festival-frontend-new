@@ -11,8 +11,8 @@ function RolesTable({ data, delRole }: RolesTableProps) {
     const subcategories: JSX.Element[] = data.map(v => (
         <tr key={v.id}>
             <th scope="row">{v.id}</th>
-            <td>{v.name.replace("_", " ")}</td>
-            <td>{v.permissions}</td>
+            <td>{v.name}</td>
+            <td>{v.permissions.replace("_", " ")}</td>
             <td>
                 <button
                     type="button"

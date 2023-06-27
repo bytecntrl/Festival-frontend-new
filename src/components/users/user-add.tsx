@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 
-import ROLES from "../../env/roles";
-
 interface UserAddProps {
-    addUser: (username: string, password: string, role: string) => Promise<void>
+    roles: Record<number, string>;
+    addUser: (username: string, password: string, roleId: number) => Promise<void>
 }
 
-function UserAdd({ addUser }: UserAddProps) {
+function UserAdd({ roles, addUser }: UserAddProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState(0);
+    const [role, setRole] = useState(parseInt(Object.entries(roles)[0][0]));
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const name = event.target.name;
@@ -25,11 +24,15 @@ function UserAdd({ addUser }: UserAddProps) {
     };
 
     const handleClick = async () => {
-        await addUser(username, password, ROLES[role]);
+        await addUser(username, password, role);
         setUsername("");
         setPassword("");
         setRole(0);
     };
+
+    const rolesOptions = Object.entries(roles).map(([key, value]) => (
+        <option value={key} key={key}>{value}</option>
+    ));
 
     return (
         <>
@@ -84,9 +87,7 @@ function UserAdd({ addUser }: UserAddProps) {
                                     onChange={handleChange}
                                     value={role}
                                 >
-                                    {ROLES.map((role, index) => (
-                                        <option value={index} key={index}>{role}</option>
-                                    ))}
+                                    {rolesOptions}
                                 </select>
                             </div>
                         </div>

@@ -29,6 +29,9 @@ export default function RouteUsers() {
             return;
         }
 
+        if (Object.keys(rolesData.roles).length === 0)
+            setMessage("First set the roles");
+
         setState(data.users);
         setPageNum(data.pages);
         setRoles(rolesData.roles);
@@ -53,13 +56,13 @@ export default function RouteUsers() {
         fetchData();
     }
 
-    const addUser = async (username: string, password: string, role: string) => {
+    const addUser = async (username: string, password: string, roleId: number) => {
         setMessage("");
 
         const data = await client.post<RegisterResponse>('/auth', {
             username,
             password,
-            role
+            role_id: roleId
         });
 
         if (data.error) {
@@ -93,7 +96,7 @@ export default function RouteUsers() {
                     {pages}
                 </div>
             </div>
-            <UserAdd addUser={addUser} />
+            {Object.entries(roles).length > 0 && <UserAdd roles={roles} addUser={addUser} />}
         </div>
     );
 }
